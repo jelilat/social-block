@@ -12,6 +12,8 @@ import Chat from './components/Chat'
 import HelperButtonGroup from './components/HelperButtonGroup'
 import MobileVirtualJoystick from './components/MobileVirtualJoystick'
 
+import { ThirdwebProvider } from 'thirdweb/react'
+
 const Backdrop = styled.div`
   position: absolute;
   height: 100%;
@@ -53,11 +55,13 @@ function App() {
   }
 
   return (
-    <Backdrop>
-      {ui}
-      {/* Render HelperButtonGroup if no dialogs are opened. */}
-      {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
-    </Backdrop>
+    <ThirdwebProvider>
+      <Backdrop>
+        {ui}
+        {/* Render HelperButtonGroup if no dialogs are opened. */}
+        {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
+      </Backdrop>
+    </ThirdwebProvider>
   )
 }
 
