@@ -16,6 +16,8 @@ import { useAppSelector } from '../hooks'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
+import WalletConnect from '../crypto/WalletConnect'
+import { useActiveAccount } from 'thirdweb/react'
 
 const Backdrop = styled.div`
   position: absolute;
@@ -49,28 +51,33 @@ const CustomRoomWrapper = styled.div`
 `
 
 const TitleWrapper = styled.div`
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
+  margin-bottom: 20px;
+`
 
-  .back-button {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: start;
-    align-self: center;
-  }
-
-  h1 {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: center;
-    align-self: center;
-  }
+const TitleContent = styled.div`
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  min-width: 0;
 `
 
 const Title = styled.h1`
   font-size: 24px;
   color: #eee;
   text-align: center;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`
+
+const StyledIconButton = styled(IconButton)`
+  margin-left: 8px;
+  flex-shrink: 0;
 `
 
 const Content = styled.div`
@@ -106,6 +113,7 @@ export default function RoomSelectionDialog() {
   const [showCreateRoomForm, setShowCreateRoomForm] = useState(false)
   const [showSnackbar, setShowSnackbar] = useState(false)
   const lobbyJoined = useAppSelector((state) => state.room.lobbyJoined)
+  const activeAccount = useActiveAccount()
 
   const handleConnect = () => {
     if (lobbyJoined) {
@@ -118,6 +126,31 @@ export default function RoomSelectionDialog() {
       setShowSnackbar(true)
     }
   }
+
+  const renderTitle = (title: string, showBackButton: boolean, showTooltip: boolean) => (
+    <TitleWrapper>
+      {showBackButton && (
+        <IconButton
+          className="back-button"
+          onClick={() =>
+            showCreateRoomForm ? setShowCreateRoomForm(false) : setShowCustomRoom(false)
+          }
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      )}
+      <TitleContent>
+        <Title>{title}</Title>
+        {showTooltip && (
+          <Tooltip title="We update the results in realtime, no refresh needed!" placement="top">
+            <StyledIconButton>
+              <HelpOutlineIcon className="tip" />
+            </StyledIconButton>
+          </Tooltip>
+        )}
+      </TitleContent>
+    </TitleWrapper>
+  )
 
   return (
     <>
@@ -168,18 +201,25 @@ export default function RoomSelectionDialog() {
                   </Tooltip>
                 </Title>
               </TitleWrapper>
-              <CustomRoomTable />
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => setShowCreateRoomForm(true)}
-              >
-                Create new room
-              </Button>
+              {activeAccount ? (
+                <>
+                  {' '}
+                  <CustomRoomTable />
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => setShowCreateRoomForm(true)}
+                  >
+                    Create new room
+                  </Button>
+                </>
+              ) : (
+                <WalletConnect />
+              )}
             </CustomRoomWrapper>
           ) : (
             <>
-              <Title>Welcome to SkyOffice</Title>
+              <Title>Welcome to Social Block</Title>
               <Content>
                 <img src={logo} alt="logo" />
                 <Button variant="contained" color="secondary" onClick={handleConnect}>
