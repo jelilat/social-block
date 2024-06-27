@@ -6,6 +6,12 @@ import TextField from '@mui/material/TextField'
 import InputAdornment from '@mui/material/InputAdornment'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import Switch from '@mui/material/Switch'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
 
 import { IRoomData } from '../../../types/Rooms'
 import { useAppSelector } from '../hooks'
@@ -18,6 +24,8 @@ const CreateRoomFormWrapper = styled.form`
   flex-direction: column;
   width: 320px;
   gap: 20px;
+  max-height: 70vh; // 70% of viewport height
+  overflow-y: auto; // Enable vertical scrolling
 `
 
 export const CreateRoomForm = () => {
@@ -26,15 +34,54 @@ export const CreateRoomForm = () => {
     description: '',
     password: null,
     autoDispose: true,
+    isPrivate: false,
+    tokenGating: {
+      contractAddress: '',
+      minimumAmount: 0,
+      tokenType: 'erc20',
+      // chain: 'Ethereum',
+    },
+    entryFee: {
+      amount: 0,
+      // currency: 'ETH',
+    },
+    maxPlayers: 10,
   })
   const [showPassword, setShowPassword] = useState(false)
   const [nameFieldEmpty, setNameFieldEmpty] = useState(false)
   const [descriptionFieldEmpty, setDescriptionFieldEmpty] = useState(false)
+  const [tokenGate, setTokenGate] = useState(false)
+  // const [entryFee, setEntryFee] = useState(false)
   const lobbyJoined = useAppSelector((state) => state.room.lobbyJoined)
 
   const handleChange = (prop: keyof IRoomData) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
   }
+
+  const handleTokenGatingChange =
+    (prop: keyof typeof values.tokenGating) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValues({
+        ...values,
+        tokenGating: {
+          ...values.tokenGating,
+          [prop]: prop === 'minimumAmount' ? Number(event.target.value) : event.target.value,
+          contractAddress: values.tokenGating?.contractAddress || '',
+          minimumAmount: values.tokenGating?.minimumAmount || 0,
+        },
+      })
+    }
+
+  const handleEntryFeeChange =
+    (prop: keyof typeof values.entryFee) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValues({
+        ...values,
+        entryFee: {
+          ...values.entryFee,
+          [prop]: prop === 'amount' ? Number(event.target.value) : event.target.value,
+          amount: values.entryFee?.amount || 0,
+        },
+      })
+    }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -97,6 +144,106 @@ export const CreateRoomForm = () => {
           ),
         }}
       />
+
+      <FormControlLabel
+        control={
+          <Switch
+            checked={values.isPrivate}
+            onChange={(e) => setValues({ ...values, isPrivate: e.target.checked })}
+          />
+        }
+        label="Private Room"
+        sx={{ color: 'white' }}
+      />
+
+      <FormControlLabel
+        control={<Switch checked={tokenGate} onChange={(e) => setTokenGate(e.target.checked)} />}
+        label="Token Gate"
+        sx={{ color: 'white' }}
+      />
+
+      {tokenGate && (
+        <>
+          <TextField
+            label="Token Contract Address"
+            variant="outlined"
+            color="secondary"
+            onChange={handleTokenGatingChange('contractAddress')}
+          />
+
+          <TextField
+            label="Minimum Token Amount"
+            variant="outlined"
+            color="secondary"
+            type="number"
+            onChange={handleTokenGatingChange('minimumAmount')}
+          />
+
+          <FormControl fullWidth>
+            <InputLabel>Token Type</InputLabel>
+            <Select
+              value={values.tokenGating.tokenType}
+              label="Token Type"
+              onChange={(e) =>
+                setValues({
+                  ...values,
+                  tokenGating: { ...values.tokenGating, tokenType: e.target.value as string },
+                })
+              }
+            >
+              <MenuItem value="native">Native</MenuItem>
+              <MenuItem value="erc20">ERC20</MenuItem>
+              <MenuItem value="erc721">ERC721</MenuItem>
+              <MenuItem value="erc1155">ERC1155</MenuItem>
+            </Select>
+          </FormControl>
+        </>
+      )}
+
+      {/* <FormControl fullWidth>
+        <InputLabel>Blockchain</InputLabel>
+        <Select
+          value={values.tokenGating.chain}
+          label="Blockchain"
+          onChange={(e) =>
+            setValues({
+              ...values,
+              tokenGating: { ...values.tokenGating, chain: e.target.value as string },
+            })
+          }
+        >
+          <MenuItem value="Ethereum">Ethereum</MenuItem>
+          <MenuItem value="BinanceSmartChain">Binance Smart Chain</MenuItem>
+          <MenuItem value="Polygon">Polygon</MenuItem>
+        </Select>
+      </FormControl> */}
+
+      <TextField
+        label="Entry Fee Amount"
+        variant="outlined"
+        color="secondary"
+        type="number"
+        onChange={handleEntryFeeChange('amount')}
+      />
+
+      {/* <FormControl fullWidth>
+        <InputLabel>Entry Fee Currency</InputLabel>
+        <Select
+          value={values.entryFee.currency}
+          label="Entry Fee Currency"
+          onChange={(e) =>
+            setValues({
+              ...values,
+              entryFee: { ...values.entryFee, currency: e.target.value as string },
+            })
+          }
+        >
+          <MenuItem value="ETH">ETH</MenuItem>
+          <MenuItem value="BNB">BNB</MenuItem>
+          <MenuItem value="MATIC">MATIC</MenuItem>
+        </Select>
+      </FormControl> */}
+
       <Button variant="contained" color="secondary" type="submit">
         Create
       </Button>
