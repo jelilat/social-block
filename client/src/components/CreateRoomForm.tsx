@@ -35,7 +35,7 @@ export const CreateRoomForm = () => {
     name: '',
     description: '',
     password: null,
-    autoDispose: true,
+    autoDispose: false,
     isPrivate: false,
     tokenGating: {
       contractAddress: '',
