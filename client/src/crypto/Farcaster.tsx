@@ -3,18 +3,35 @@ import axios, { AxiosError } from 'axios'
 import { useState } from 'react'
 import { NeynarAuthButton, useNeynarContext } from '@neynar/react'
 
-export default function Farcaster({ postMessage }: { postMessage: string }) {
+const getServerEndpoint = () => {
+  return process.env.NODE_ENV === 'production'
+    ? import.meta.env.VITE_SERVER_URL
+    : `http://${window.location.hostname}:2567`
+}
+
+export default function Farcaster({
+  postMessage,
+  setShowFarcasterLogin,
+  setSharedToFarcaster,
+}: {
+  postMessage: string
+  setShowFarcasterLogin: (value: boolean) => void
+  setSharedToFarcaster: (value: boolean) => void
+}) {
   const { user } = useNeynarContext()
   const [text, setText] = useState(postMessage)
 
   const handlePublishCast = async () => {
     try {
-      await axios.post<{ message: string }>('/api/cast', {
+      const endpoint = getServerEndpoint()
+      await axios.post<{ message: string }>(`${endpoint}/api/cast`, {
         signerUuid: user?.signer_uuid,
         text,
       })
       alert('Cast Published!')
       setText('')
+      setShowFarcasterLogin(false)
+      setSharedToFarcaster(true)
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.data) {
         const { message } = err.response.data as { message: string }
