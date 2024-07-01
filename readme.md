@@ -1,15 +1,20 @@
-# SkyOffice ![License](https://img.shields.io/badge/license-MIT-blue) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)
+# Social Block ![License](https://img.shields.io/badge/license-MIT-blue) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)
 
-<img alt="Logo" align="right" src="https://user-images.githubusercontent.com/11501902/139942585-a6b044ce-3695-460a-91bd-dd9f1d4611c8.png" width="20%" />
+<img alt="Logo" align="right" src="[Your Logo URL]" width="20%" />
 
-An immersive virtual office - Winner of [2021 Monte Jade Innovation Competition](https://www.montejadese.org/innovation-competition)
+Social Block is a blockchain-powered virtual world where crypto enthusiasts can connect, collaborate, play games, and have fun. Inspired by Gather.town and built upon the open-source SkyOffice platform, Social Block creates an immersive digital space tailored for the Web3 community.
 
-- Come try it out - [Official Website](https://sky-office.co/)
-- Why we built this - [Concept Video](https://www.youtube.com/watch?v=BpDqGTPh8pc)
-- 🙌 Get latest updates? Follow our [Twitter](https://twitter.com/SkyOfficeApp).
-- 💕 Love this project? Consider [buy me a coffee](https://www.buymeacoffee.com/skyoffice).
+Social Block combines the best of social networking, online gaming, and blockchain technology. It provides a space where users can:
 
-SkyOffice works on all PC browsers (mobile browsers are currently not supported)
+- Create custom rooms for hangouts, meetings, or events
+- Interact with others through proximity-based voice and video chat
+- Play mini-games and participate in collaborative activities
+- Host and attend virtual concerts and conferences
+- Integrate their web3 social identities (Farcaster, Lens, etc.) and assets.
+
+Whether you're looking to network with fellow crypto enthusiasts, host a virtual hackathon, or just hang out in a blockchain-themed space, Social Block offers a unique and engaging experience.
+
+Social Block works on all PC browsers (mobile browsers are currently not supported)
 
 ## Built with
 
@@ -69,39 +74,25 @@ You'll need [Node.js](https://nodejs.org/en/), [npm](https://www.npmjs.com/) ins
 Clone this repository to your local machine:
 
 ```bash
-git clone https://github.com/kevinshen56714/SkyOffice.git
+git clone https://github.com/jelilat/social-block.git
 ```
 
-This will create a folder named `SkyOffice`. You can specify a different folder name like this:
+This will create a folder named `social-block`. You can specify a different folder name like this:
 
 ```bash
-git clone https://github.com/kevinshen56714/SkyOffice.git my-folder-name
+git clone https://github.com/jelilat/social-block.git my-folder-name
 ```
 
 To start a server, go into the project folder and install dependencies/run start command:
 
 ```bash
-cd SkyOffice or 'my-folder-name'
+cd social-block or 'my-folder-name'
 yarn && yarn start
 ```
 
 To start a client, go into the client folder and install dependencies/run start command:
 
 ```bash
-cd SkyOffice/client or 'my-folder-name/client'
+cd social-block/client or 'my-folder-name/client'
 yarn && yarn dev
 ```
-
-## Credits 🎉
-
-Big thanks to this great repo - [ourcade/phaser3-typescript-parcel-template](https://github.com/ourcade/phaser3-typescript-parcel-template)
-
-Big thanks to pixel artist - [LimeZu](https://limezu.itch.io/)
-
-Big thanks to open-source whiteboard project - [WBO](https://github.com/lovasoa/whitebophir)
-
-## License
-
-This project is licensed under MIT.
-
-If you're using SkyOffice to power your virtual office or using our code in other projects, please consider [buy me a coffee](https://www.buymeacoffee.com/skyoffice). Thank you :)
