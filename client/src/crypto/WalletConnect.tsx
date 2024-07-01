@@ -6,7 +6,7 @@ import { createWallet, inAppWallet } from 'thirdweb/wallets'
 import { baseSepolia } from 'thirdweb/chains'
 
 const clientId = import.meta.env.VITE_THIRDWEB_CLIENT_ID!
-const client = createThirdwebClient({ clientId })
+export const client = createThirdwebClient({ clientId })
 const wallets = [
   inAppWallet({
     smartAccount: {

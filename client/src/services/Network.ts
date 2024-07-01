@@ -87,6 +87,7 @@ export default class Network {
       autoDispose,
     })
     this.initialize()
+    return this.room.id
   }
 
   // set up all network listeners before the game starts

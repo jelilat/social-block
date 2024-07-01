@@ -7,6 +7,7 @@ export enum RoomType {
 export interface IRoomData {
   name: string
   description: string
+  creator: string // address
   password: string | null
   autoDispose: boolean
   tokenGating?: {

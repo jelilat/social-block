@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
@@ -22,6 +22,11 @@ import { getAvatarString, getColorByString } from '../util'
 
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+
+import { useActiveAccount } from 'thirdweb/react'
+import { getFid } from 'thirdweb/extensions/farcaster'
+import { client } from '../crypto/WalletConnect'
+import Farcaster from '../crypto/Farcaster'
 
 const Wrapper = styled.form`
   position: fixed;
@@ -127,6 +132,29 @@ const Warning = styled.div`
   gap: 3px;
 `
 
+const FarcasterShare = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background-color: #2a2d3e;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    color: #ffffff;
+    font-size: 18px;
+    text-align: center;
+    margin: 0;
+  }
+
+  button {
+    width: 200px;
+    margin-top: 10px;
+  }
+`
+
 const avatars = [
   { name: 'adam', img: Adam },
   { name: 'ash', img: Ash },
@@ -141,6 +169,9 @@ for (let i = avatars.length - 1; i > 0; i--) {
 }
 
 export default function LoginDialog() {
+  const [hasFarcasterProfile, setHasFarcasterProfile] = useState<boolean>(true)
+  const [sharedToFarcaster, setSharedToFarcaster] = useState<boolean>(false)
+  const [showFarcasterLogin, setShowFarcasterLogin] = useState<boolean>(false)
   const [name, setName] = useState<string>('')
   const [avatarIndex, setAvatarIndex] = useState<number>(0)
   const [nameFieldEmpty, setNameFieldEmpty] = useState<boolean>(false)
@@ -150,6 +181,23 @@ export default function LoginDialog() {
   const roomName = useAppSelector((state) => state.room.roomName)
   const roomDescription = useAppSelector((state) => state.room.roomDescription)
   const game = phaserGame.scene.keys.game as Game
+
+  const activeAccount = useActiveAccount()
+
+  useEffect(() => {
+    // TODO: Find a solution
+    // Early farcaster profiles didn't use a wallet connection directly. Rather, it created a wallet address for users
+    // So the connected wallet may not be able to show an fid.
+    const checkFarcasterProfile = async () => {
+      const fid = await getFid({ client, address: activeAccount?.address! })
+      console.log('fid', fid)
+      console.log('activeAccount', activeAccount)
+      if (fid === 0n) {
+        setHasFarcasterProfile(false)
+      }
+    }
+    // checkFarcasterProfile()
+  }, [])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -166,79 +214,114 @@ export default function LoginDialog() {
   }
 
   return (
-    <Wrapper onSubmit={handleSubmit}>
-      <Title>Joining</Title>
-      <RoomName>
-        <Avatar style={{ background: getColorByString(roomName) }}>
-          {getAvatarString(roomName)}
-        </Avatar>
-        <h3>{roomName}</h3>
-      </RoomName>
-      <RoomDescription>
-        <ArrowRightIcon /> {roomDescription}
-      </RoomDescription>
-      <Content>
-        <Left>
-          <SubTitle>Select an avatar</SubTitle>
-          <Swiper
-            modules={[Navigation]}
-            navigation
-            spaceBetween={0}
-            slidesPerView={1}
-            onSlideChange={(swiper) => {
-              setAvatarIndex(swiper.activeIndex)
-            }}
-          >
-            {avatars.map((avatar) => (
-              <SwiperSlide key={avatar.name}>
-                <img src={avatar.img} alt={avatar.name} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </Left>
-        <Right>
-          <TextField
-            autoFocus
-            fullWidth
-            label="Name"
-            variant="outlined"
-            color="secondary"
-            error={nameFieldEmpty}
-            helperText={nameFieldEmpty && 'Name is required'}
-            onInput={(e) => {
-              setName((e.target as HTMLInputElement).value)
-            }}
-          />
-          {!videoConnected && (
-            <Warning>
-              <Alert variant="outlined" severity="warning">
-                <AlertTitle>Warning</AlertTitle>
-                No webcam/mic connected - <strong>connect one for best experience!</strong>
-              </Alert>
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => {
-                  game.network.webRTC?.getUserMedia()
-                }}
-              >
-                Connect Webcam
-              </Button>
-            </Warning>
-          )}
+    <>
+      {!sharedToFarcaster ? (
+        <>
+          <Wrapper onSubmit={handleSubmit}>
+            <Title>Joining</Title>
+            {showFarcasterLogin ? ( // TODO: add roomId to url so prople can join from the link
+              <Farcaster
+                postMessage={`Hey everyone! \n\n Come play games and have fun with me on social block. Join my room ${roomName} ${window.location.hostname}`}
+                setShowFarcasterLogin={setShowFarcasterLogin}
+                setSharedToFarcaster={setSharedToFarcaster}
+              />
+            ) : (
+              <FarcasterShare>
+                <h3>Invite your friends to join</h3>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  size="large"
+                  type="submit"
+                  onClick={() => setShowFarcasterLogin(true)}
+                >
+                  Share
+                </Button>
+                <Button variant="text" color="secondary" onClick={() => setSharedToFarcaster(true)}>
+                  Skip for now
+                </Button>
+              </FarcasterShare>
+            )}
+          </Wrapper>
+        </>
+      ) : (
+        <>
+          <Wrapper onSubmit={handleSubmit}>
+            <Title>Joining</Title>
+            <RoomName>
+              <Avatar style={{ background: getColorByString(roomName) }}>
+                {getAvatarString(roomName)}
+              </Avatar>
+              <h3>{roomName}</h3>
+            </RoomName>
+            <RoomDescription>
+              <ArrowRightIcon /> {roomDescription}
+            </RoomDescription>
+            <Content>
+              <Left>
+                <SubTitle>Select an avatar</SubTitle>
+                <Swiper
+                  modules={[Navigation]}
+                  navigation
+                  spaceBetween={0}
+                  slidesPerView={1}
+                  onSlideChange={(swiper) => {
+                    setAvatarIndex(swiper.activeIndex)
+                  }}
+                >
+                  {avatars.map((avatar) => (
+                    <SwiperSlide key={avatar.name}>
+                      <img src={avatar.img} alt={avatar.name} />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </Left>
+              <Right>
+                <TextField
+                  autoFocus
+                  fullWidth
+                  label="Name"
+                  variant="outlined"
+                  color="secondary"
+                  error={nameFieldEmpty}
+                  helperText={nameFieldEmpty && 'Name is required'}
+                  onInput={(e) => {
+                    setName((e.target as HTMLInputElement).value)
+                  }}
+                />
+                {!videoConnected && (
+                  <Warning>
+                    <Alert variant="outlined" severity="warning">
+                      <AlertTitle>Warning</AlertTitle>
+                      No webcam/mic connected - <strong>connect one for best experience!</strong>
+                    </Alert>
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        game.network.webRTC?.getUserMedia()
+                      }}
+                    >
+                      Connect Webcam
+                    </Button>
+                  </Warning>
+                )}
 
-          {videoConnected && (
-            <Warning>
-              <Alert variant="outlined">Webcam connected!</Alert>
-            </Warning>
-          )}
-        </Right>
-      </Content>
-      <Bottom>
-        <Button variant="contained" color="secondary" size="large" type="submit">
-          Join
-        </Button>
-      </Bottom>
-    </Wrapper>
+                {videoConnected && (
+                  <Warning>
+                    <Alert variant="outlined">Webcam connected!</Alert>
+                  </Warning>
+                )}
+              </Right>
+            </Content>
+            <Bottom>
+              <Button variant="contained" color="secondary" size="large" type="submit">
+                Join
+              </Button>
+            </Bottom>
+          </Wrapper>
+        </>
+      )}
+    </>
   )
 }

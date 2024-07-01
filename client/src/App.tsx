@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import styled from 'styled-components'
 
@@ -13,6 +15,8 @@ import HelperButtonGroup from './components/HelperButtonGroup'
 import MobileVirtualJoystick from './components/MobileVirtualJoystick'
 
 import { ThirdwebProvider } from 'thirdweb/react'
+import { NeynarContextProvider, Theme } from '@neynar/react'
+import '@neynar/react/dist/style.css'
 
 const Backdrop = styled.div`
   position: absolute;
@@ -56,11 +60,22 @@ function App() {
 
   return (
     <ThirdwebProvider>
-      <Backdrop>
-        {ui}
-        {/* Render HelperButtonGroup if no dialogs are opened. */}
-        {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
-      </Backdrop>
+      <NeynarContextProvider
+        settings={{
+          clientId: import.meta.env.VITE_NEYNAR_CLIENT_ID || '',
+          defaultTheme: Theme.Light,
+          eventsCallbacks: {
+            onAuthSuccess: () => {},
+            onSignout() {},
+          },
+        }}
+      >
+        <Backdrop>
+          {ui}
+          {/* Render HelperButtonGroup if no dialogs are opened. */}
+          {!computerDialogOpen && !whiteboardDialogOpen && <HelperButtonGroup />}
+        </Backdrop>
+      </NeynarContextProvider>
     </ThirdwebProvider>
   )
 }

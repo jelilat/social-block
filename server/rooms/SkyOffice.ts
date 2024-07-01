@@ -17,25 +17,43 @@ import {
 } from './commands/WhiteboardUpdateArrayCommand'
 import ChatMessageUpdateCommand from './commands/ChatMessageUpdateCommand'
 
+import { getWalletBalance } from 'thirdweb/wallets'
+
 export class SkyOffice extends Room<OfficeState> {
   private dispatcher = new Dispatcher(this)
   private name: string
   private description: string
   private password: string | null = null
+  private tokenGating: {
+    contractAddress: string
+    minimumAmount: number
+    tokenType?: string
+    chain?: string
+  } | null = null
+  private isPrivate: boolean = false
+  private entryFee: { amount: number; currency?: string } | null = null
 
   async onCreate(options: IRoomData) {
-    const { name, description, password, autoDispose } = options
+    const { name, description, password, autoDispose, tokenGating, isPrivate, entryFee } = options
     this.name = name
     this.description = description
     this.autoDispose = autoDispose
+    this.tokenGating = tokenGating ?? null
+    this.isPrivate = isPrivate ?? false
+    this.entryFee = entryFee ?? null
 
-    let hasPassword = false
     if (password) {
       const salt = await bcrypt.genSalt(10)
       this.password = await bcrypt.hash(password, salt)
-      hasPassword = true
     }
-    this.setMetadata({ name, description, hasPassword })
+    this.setMetadata({
+      name: options.name,
+      description: options.description,
+      hasPassword: options.password !== null,
+      tokenGating: options.tokenGating,
+      isPrivate: options.isPrivate,
+      entryFee: options.entryFee,
+    })
 
     this.setState(new OfficeState())
 
@@ -162,6 +180,19 @@ export class SkyOffice extends Room<OfficeState> {
         throw new ServerError(403, 'Password is incorrect!')
       }
     }
+
+    // Check if room is token gated
+    // if (this.tokenGating?.minimumAmount && this.tokenGating.minimumAmount > 0) {
+    //   const tokenGating = this.tokenGating
+    //   const contractAddress = tokenGating.contractAddress
+    //   const minimumAmount = tokenGating.minimumAmount
+
+    //   let userBalance = 0;
+    //  const balance = await getWalletBalance({
+    //     address: client.sessionId,
+    //     chain: tokenGating.chain,
+    //   })
+    // }
     return true
   }
 

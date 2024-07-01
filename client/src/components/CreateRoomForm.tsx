@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -18,6 +18,8 @@ import { useAppSelector } from '../hooks'
 
 import phaserGame from '../PhaserGame'
 import Bootstrap from '../scenes/Bootstrap'
+
+import { useActiveAccount } from 'thirdweb/react'
 
 const CreateRoomFormWrapper = styled.form`
   display: flex;
@@ -46,6 +48,7 @@ export const CreateRoomForm = () => {
       // currency: 'ETH',
     },
     maxPlayers: 10,
+    creator: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [nameFieldEmpty, setNameFieldEmpty] = useState(false)
@@ -53,6 +56,14 @@ export const CreateRoomForm = () => {
   const [tokenGate, setTokenGate] = useState(false)
   // const [entryFee, setEntryFee] = useState(false)
   const lobbyJoined = useAppSelector((state) => state.room.lobbyJoined)
+
+  const activeAccount = useActiveAccount()
+
+  useEffect(() => {
+    if (activeAccount) {
+      setValues({ ...values, creator: activeAccount.address })
+    }
+  }, [activeAccount])
 
   const handleChange = (prop: keyof IRoomData) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
@@ -83,7 +94,7 @@ export const CreateRoomForm = () => {
       })
     }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const isValidName = values.name !== ''
     const isValidDescription = values.description !== ''
@@ -95,10 +106,9 @@ export const CreateRoomForm = () => {
     // create custom room if name and description are not empty
     if (isValidName && isValidDescription && lobbyJoined) {
       const bootstrap = phaserGame.scene.keys.bootstrap as Bootstrap
-      bootstrap.network
-        .createCustom(values)
-        .then(() => bootstrap.launchGame())
-        .catch((error) => console.error(error))
+      const roomId = await bootstrap.network.createCustom(values)
+
+      bootstrap.launchGame()
     }
   }
 
