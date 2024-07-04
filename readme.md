@@ -1,7 +1,5 @@
 # Social Block ![License](https://img.shields.io/badge/license-MIT-blue) ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-green.svg)
 
-<img alt="Logo" align="right" src="[Your Logo URL]" width="20%" />
-
 Social Block is a blockchain-powered virtual world where crypto enthusiasts can connect, collaborate, play games, and have fun. Inspired by Gather.town and built upon the open-source SkyOffice platform, Social Block creates an immersive digital space tailored for the Web3 community.
 
 Social Block combines the best of social networking, online gaming, and blockchain technology. It provides a space where users can:
