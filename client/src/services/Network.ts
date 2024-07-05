@@ -14,12 +14,15 @@ import {
   addAvailableRooms,
   removeAvailableRooms,
 } from '../stores/RoomStore'
+import { setRound } from '../stores/NotificationStore'
 import {
   pushChatMessage,
   pushPlayerJoinedMessage,
   pushPlayerLeftMessage,
+  pushDeathMessage,
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
+import { Role } from '../../../types/IOfficeState'
 
 export default class Network {
   private client: Client
@@ -115,6 +118,12 @@ export default class Network {
             store.dispatch(setPlayerNameMap({ id: key, name: value }))
             store.dispatch(pushPlayerJoinedMessage(value))
           }
+
+          // when a player dies
+          if (field === 'isDead' && value === true) {
+            phaserEvents.emit(Event.PLAYER_DIED, player, key)
+            store.dispatch(pushDeathMessage({ name: player.name, role: player.role }))
+          }
         })
       }
     }
@@ -159,6 +168,27 @@ export default class Network {
     // new instance added to the chatMessages ArraySchema
     this.room.state.chatMessages.onAdd = (item, index) => {
       store.dispatch(pushChatMessage(item))
+    }
+
+    // when state changes
+    this.room.state.onChange = (changes) => {
+      changes.forEach((change) => {
+        const { field, value } = change
+        if (field === 'round') {
+          // map of dead players and their roles
+          const deadPlayers = new Map<string, Role | undefined>()
+          let infectedPlayers: string[] = []
+          this.room?.state.players.forEach((player) => {
+            if (player.isInfected) {
+              infectedPlayers.push(player.name)
+            }
+            if (player.isDead) {
+              deadPlayers.set(player.name, player.role)
+            }
+          })
+          store.dispatch(setRound({ round: value, deadPlayers, infectedPlayers }))
+        }
+      })
     }
 
     // when the server sends room data
@@ -282,5 +312,22 @@ export default class Network {
 
   addChatMessage(content: string) {
     this.room?.send(Message.ADD_CHAT_MESSAGE, { content: content })
+  }
+
+  /** VIRUS GAME METHODS */
+  infectPlayer(assailantId: string, targetId: string) {
+    this.room?.send(Message.INFECT_PLAYER, { assailantId, targetId })
+  }
+
+  killPlayer(assassinId: string, targetId: string) {
+    this.room?.send(Message.KILL_PLAYER, { assassinId, targetId })
+  }
+
+  getTested(playerId: string) {
+    this.room?.send(Message.GET_TESTED, { playerId })
+  }
+
+  giveAntidote(giverId: string, receiverId: string) {
+    this.room?.send(Message.GIVE_ANTIDOTE, { giverId, receiverId })
   }
 }

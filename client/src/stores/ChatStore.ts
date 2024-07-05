@@ -2,11 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { IChatMessage } from '../../../types/IOfficeState'
 import phaserGame from '../PhaserGame'
 import Game from '../scenes/Game'
+import { Role } from '../../../types/IOfficeState'
 
 export enum MessageType {
   PLAYER_JOINED,
   PLAYER_LEFT,
   REGULAR_MESSAGE,
+  PLAYER_DIED,
 }
 
 export const chatSlice = createSlice({
@@ -43,6 +45,16 @@ export const chatSlice = createSlice({
         } as IChatMessage,
       })
     },
+    pushDeathMessage: (state, action: PayloadAction<{ name: string; role: Role | undefined }>) => {
+      state.chatMessages.push({
+        messageType: MessageType.PLAYER_DIED,
+        chatMessage: {
+          createdAt: new Date().getTime(),
+          author: action.payload.name,
+          content: `${action.payload.name} has been eliminated. They were a ${action.payload.role}`,
+        } as IChatMessage,
+      })
+    },
     setFocused: (state, action: PayloadAction<boolean>) => {
       const game = phaserGame.scene.keys.game as Game
       action.payload ? game.disableKeys() : game.enableKeys()
@@ -58,6 +70,7 @@ export const {
   pushChatMessage,
   pushPlayerJoinedMessage,
   pushPlayerLeftMessage,
+  pushDeathMessage,
   setFocused,
   setShowChat,
 } = chatSlice.actions
