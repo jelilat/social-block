@@ -1,5 +1,14 @@
 import { Schema, ArraySchema, SetSchema, MapSchema } from '@colyseus/schema'
 
+export enum Role {
+  Civilian = 'civilian',
+  Terrorist = 'terrorist',
+  Researcher = 'researcher',
+  Police = 'police',
+  Fanatic = 'fanatic',
+  Reporter = 'reporter',
+}
+
 export interface IPlayer extends Schema {
   name: string
   x: number
@@ -7,6 +16,16 @@ export interface IPlayer extends Schema {
   anim: string
   readyToConnect: boolean
   videoConnected: boolean
+  role?: Role
+  hasAntibodies?: boolean
+  numOfAntidotes?: number
+  remainingTests?: number
+  takenAntidote?: boolean
+  numOfBullets?: number
+  isDead?: boolean
+  isInfected?: boolean
+  roundInfected?: number
+  testKits?: number
 }
 
 export interface IComputer extends Schema {
@@ -29,4 +48,9 @@ export interface IOfficeState extends Schema {
   computers: MapSchema<IComputer>
   whiteboards: MapSchema<IWhiteboard>
   chatMessages: ArraySchema<IChatMessage>
+  gameStarted: boolean
+  round: number
+  timeRoundStarted: number
+  playerOrder: ArraySchema<string>
+  deadPlayers: ArraySchema<string>
 }

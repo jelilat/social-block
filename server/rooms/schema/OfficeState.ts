@@ -6,6 +6,7 @@ import {
   IWhiteboard,
   IChatMessage,
 } from '../../../types/IOfficeState'
+import { Role } from '../../../types/IOfficeState'
 
 export class Player extends Schema implements IPlayer {
   @type('string') name = ''
@@ -14,6 +15,16 @@ export class Player extends Schema implements IPlayer {
   @type('string') anim = 'adam_idle_down'
   @type('boolean') readyToConnect = false
   @type('boolean') videoConnected = false
+  @type('string') role = Role.Civilian
+  @type('boolean') hasAntibodies = false
+  @type('number') numOfAntidotes = 0
+  @type('number') remainingTests = 1
+  @type('boolean') takenAntidote = false
+  @type('number') numOfBullets = 0
+  @type('boolean') isDead = false
+  @type('boolean') isInfected = false
+  @type('number') roundInfected = 0
+  @type('number') testKits = 1
 }
 
 export class Computer extends Schema implements IComputer {
@@ -43,6 +54,21 @@ export class OfficeState extends Schema implements IOfficeState {
 
   @type([ChatMessage])
   chatMessages = new ArraySchema<ChatMessage>()
+
+  @type('boolean')
+  gameStarted = false
+
+  @type('number')
+  round = 0
+
+  @type('number')
+  timeRoundStarted = 0
+
+  @type(['string'])
+  playerOrder = new ArraySchema<string>()
+
+  @type(['string'])
+  deadPlayers = new ArraySchema<string>()
 }
 
 export const whiteboardRoomIds = new Set<string>()

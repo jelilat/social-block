@@ -18,6 +18,7 @@ if (process.env.NODE_ENV !== 'production') {
 // import socialRoutes from "@colyseus/social/express"
 
 import { SkyOffice } from './rooms/SkyOffice'
+import { VirusGame } from './rooms/VirusGame'
 
 const port = Number(process.env.PORT || 2567)
 const app = express()
@@ -70,6 +71,7 @@ gameServer.define(RoomType.PUBLIC, SkyOffice, {
   autoDispose: false,
 })
 gameServer.define(RoomType.CUSTOM, SkyOffice).enableRealtimeListing()
+gameServer.define(RoomType.VIRUS_GAME, VirusGame).enableRealtimeListing()
 
 /**
  * Register @colyseus/social routes
