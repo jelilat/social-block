@@ -4,11 +4,13 @@ import { Role } from '../../../types/IOfficeState'
 interface NotificationState {
   message: string | null
   round: number
+  winner: string | null
 }
 
 const initialState: NotificationState = {
   message: null,
   round: 0,
+  winner: null,
 }
 
 const notificationSlice = createSlice({
@@ -35,6 +37,9 @@ const notificationSlice = createSlice({
       state.message = `${gameStartMesage}Round ${action.payload.round}${gameState}`
       state.round = parseInt(action.payload.round)
     },
+    setWinner: (state, action: PayloadAction<string | null>) => {
+      state.winner = action.payload
+    },
     setNotification: (state, action: PayloadAction<string | null>) => {
       state.message = action.payload
     },
@@ -44,5 +49,5 @@ const notificationSlice = createSlice({
   },
 })
 
-export const { setRound, setNotification, clearNotification } = notificationSlice.actions
+export const { setRound, setNotification, clearNotification, setWinner } = notificationSlice.actions
 export default notificationSlice.reducer

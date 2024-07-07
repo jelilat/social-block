@@ -7,6 +7,7 @@ import { Role } from '../../../types/IOfficeState'
 const NotificationPopUp: React.FC<{ duration?: number }> = ({ duration = 5000 }) => {
   const message = useAppSelector((state) => state.notification.message)
   const round = useAppSelector((state) => state.notification.round)
+  const winner = useAppSelector((state) => state.notification.winner)
   const player = useAppSelector((state) => state.player)
   const dispatch = useAppDispatch()
   const [isVisible, setIsVisible] = useState(false)
@@ -20,6 +21,8 @@ const NotificationPopUp: React.FC<{ duration?: number }> = ({ duration = 5000 })
             ? `You are a Terrorist and your partner is ${player.partnerName}`
             : `You are a ${player.role}`
         setContent(`${message} \n\n${role}`)
+      } else if (winner) {
+        setContent(`${winner} won the game!`)
       } else {
         setContent(message)
       }
@@ -30,7 +33,7 @@ const NotificationPopUp: React.FC<{ duration?: number }> = ({ duration = 5000 })
       }, duration)
       return () => clearTimeout(timer)
     }
-  }, [message, duration, round, dispatch])
+  }, [message, duration, round, dispatch, winner])
 
   return isVisible && message ? (
     <Modal content={content} onClose={() => setIsVisible(false)} />

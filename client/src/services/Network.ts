@@ -14,7 +14,7 @@ import {
   addAvailableRooms,
   removeAvailableRooms,
 } from '../stores/RoomStore'
-import { setRound } from '../stores/NotificationStore'
+import { setRound, setWinner } from '../stores/NotificationStore'
 import {
   pushChatMessage,
   pushPlayerJoinedMessage,
@@ -242,6 +242,15 @@ export default class Network {
     // when a terrorist gets a partner
     this.room.onMessage(Message.TERRORIST_PARTNER, ({ partnerName }) => {
       store.dispatch(setPartnerName(partnerName))
+    })
+
+    // Listen for game end message
+    this.room.onMessage('game-ended', (message: { winner: string }) => {
+      // Dispatch an action to update the game state
+      store.dispatch(setWinner(message.winner))
+
+      // Emit an event for other parts of your application to react to
+      phaserEvents.emit(Event.GAME_ENDED, message.winner)
     })
   }
 

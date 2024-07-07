@@ -10,6 +10,7 @@ export enum Event {
   PLAYER_DIED = 'player-died',
   ROLE_CHANGED = 'role-changed',
   TERRORIST_PARTNER = 'terrorist-partner',
+  GAME_ENDED = 'game-ended',
   MY_PLAYER_READY = 'my-player-ready',
   MY_PLAYER_NAME_CHANGE = 'my-player-name-change',
   MY_PLAYER_TEXTURE_CHANGE = 'my-player-texture-change',

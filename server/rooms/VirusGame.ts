@@ -207,7 +207,7 @@ export class VirusGame extends SkyOffice {
 
     const winner = this.checkWinners()
     if (winner || this.state.round > 5) {
-      this.broadcast('gameEnd', { winner })
+      this.broadcast('game-ended', { winner })
     } else {
       this.broadcast('roundUpdate', { round: this.state.round })
     }
