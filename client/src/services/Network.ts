@@ -22,6 +22,7 @@ import {
   pushDeathMessage,
 } from '../stores/ChatStore'
 import { setWhiteboardUrls } from '../stores/WhiteboardStore'
+import { setRole, setPartnerName, setIsInfected, setPlayerNames } from '../stores/PlayerStore'
 import { Role } from '../../../types/IOfficeState'
 
 export default class Network {
@@ -124,6 +125,24 @@ export default class Network {
             phaserEvents.emit(Event.PLAYER_DIED, player, key)
             store.dispatch(pushDeathMessage({ name: player.name, role: player.role }))
           }
+
+          // when a player is infected
+          if (field === 'isInfected' && value === true) {
+            store.dispatch(setIsInfected(true))
+          }
+
+          // when a player's role changes
+          if (field === 'role') {
+            if (key === this.mySessionId) {
+              phaserEvents.emit(Event.ROLE_CHANGED, value)
+              store.dispatch(setRole(value))
+            }
+            // TODO: Check this
+            // if (value === Role.Terrorist) {
+            //   // Send a message to the terrorist with their partner's information
+            //   this.room?.send(Message.TERRORIST_PARTNER, { partnerId: key })
+            // }
+          }
         })
       }
     }
@@ -174,7 +193,7 @@ export default class Network {
     this.room.state.onChange = (changes) => {
       changes.forEach((change) => {
         const { field, value } = change
-        if (field === 'round') {
+        if (field === 'round' && value !== 0 && value <= 5) {
           // map of dead players and their roles
           const deadPlayers = new Map<string, Role | undefined>()
           let infectedPlayers: string[] = []
@@ -187,6 +206,14 @@ export default class Network {
             }
           })
           store.dispatch(setRound({ round: value, deadPlayers, infectedPlayers }))
+        }
+
+        if (field === 'players') {
+          const players = this.room?.state.players.values()
+          if (players) {
+            const playerNames = Array.from(players).map((player) => player.name)
+            store.dispatch(setPlayerNames(playerNames))
+          }
         }
       })
     }
@@ -210,6 +237,11 @@ export default class Network {
     this.room.onMessage(Message.STOP_SCREEN_SHARE, (clientId: string) => {
       const computerState = store.getState().computer
       computerState.shareScreenManager?.onUserLeft(clientId)
+    })
+
+    // when a terrorist gets a partner
+    this.room.onMessage(Message.TERRORIST_PARTNER, ({ partnerName }) => {
+      store.dispatch(setPartnerName(partnerName))
     })
   }
 

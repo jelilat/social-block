@@ -104,6 +104,7 @@ export class VirusGame extends SkyOffice {
     const playerIds = Array.from(this.state.players.keys())
 
     let civilianWithAntibodies = false
+    let terrorists: string[] = []
 
     playerIds.forEach((playerId, index) => {
       const player = this.state.players.get(playerId)
@@ -114,6 +115,7 @@ export class VirusGame extends SkyOffice {
           case Role.Terrorist:
             player.numOfBullets = 1
             player.numOfAntidotes = 1
+            terrorists.push(playerId)
             break
           case Role.Police:
             player.numOfBullets = 1
@@ -125,8 +127,30 @@ export class VirusGame extends SkyOffice {
             }
             break
         }
+
+        // Send private message to each player with their role
+        this.clients.forEach((client) => {
+          if (client.sessionId === playerId) {
+            client.send(Message.ROLE_CHANGED, { role: player.role })
+          }
+        })
       }
     })
+
+    // Inform terrorists of their partners
+    if (terrorists.length > 1) {
+      terrorists.forEach((terroristId) => {
+        const partnerId = terrorists.find((id) => id !== terroristId)
+        if (partnerId) {
+          const partner = this.state.players.get(partnerId)
+          this.clients.forEach((client) => {
+            if (client.sessionId === terroristId) {
+              client.send(Message.TERRORIST_PARTNER, { partnerName: partner?.name })
+            }
+          })
+        }
+      })
+    }
 
     // If no civilian got antibodies, randomly assign to one
     if (!civilianWithAntibodies) {

@@ -12,6 +12,7 @@ import WhiteboardDialog from './components/WhiteboardDialog'
 import VideoConnectionDialog from './components/VideoConnectionDialog'
 import Chat from './components/Chat'
 import NotificationPopUp from './components/NotificationPopUp'
+import Menu from './components/Menu'
 import HelperButtonGroup from './components/HelperButtonGroup'
 import MobileVirtualJoystick from './components/MobileVirtualJoystick'
 
@@ -44,6 +45,7 @@ function App() {
       ui = (
         /* Render Chat or VideoConnectionDialog if no dialogs are opened. */
         <>
+          <Menu />
           <Chat />
           <NotificationPopUp />
           {/* Render VideoConnectionDialog if user is not connected to a webcam. */}

@@ -8,6 +8,8 @@ export enum Event {
   PLAYER_LEFT = 'player-left',
   PLAYER_DISCONNECTED = 'player-disconnected',
   PLAYER_DIED = 'player-died',
+  ROLE_CHANGED = 'role-changed',
+  TERRORIST_PARTNER = 'terrorist-partner',
   MY_PLAYER_READY = 'my-player-ready',
   MY_PLAYER_NAME_CHANGE = 'my-player-name-change',
   MY_PLAYER_TEXTURE_CHANGE = 'my-player-texture-change',

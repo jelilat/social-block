@@ -3,10 +3,12 @@ import { Role } from '../../../types/IOfficeState'
 
 interface NotificationState {
   message: string | null
+  round: number
 }
 
 const initialState: NotificationState = {
   message: null,
+  round: 0,
 }
 
 const notificationSlice = createSlice({
@@ -31,6 +33,7 @@ const notificationSlice = createSlice({
           .join('\n')} \n\nInfected Players:\n ${action.payload.infectedPlayers.join('\n')} `
       }
       state.message = `${gameStartMesage}Round ${action.payload.round}${gameState}`
+      state.round = parseInt(action.payload.round)
     },
     setNotification: (state, action: PayloadAction<string | null>) => {
       state.message = action.payload

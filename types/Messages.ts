@@ -15,4 +15,6 @@ export enum Message {
   KILL_PLAYER,
   GET_TESTED,
   GIVE_ANTIDOTE,
+  ROLE_CHANGED,
+  TERRORIST_PARTNER,
 }
